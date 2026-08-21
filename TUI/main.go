@@ -3,6 +3,7 @@ package TUI
 // lipgloss test 2 -- With no hardcoded sizes
 import (
 	"fmt"
+	"strings"
 
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
@@ -14,6 +15,7 @@ type model struct {
 	ownername     string
 	url           string
 	currentbranch string
+	logs          []git.Commit
 	width, height int
 }
 
@@ -75,16 +77,21 @@ func (m model) View() tea.View {
 	// left panel
 	leftContent := fmt.Sprintf("DAGIT\n\nRepo: %s\n\nOwner: %s\n\nRemote URL:\n %s\n\nCurrent Branch: %s", m.reponame, m.ownername, m.url, m.currentbranch)
 
-	leftSide := sectionStyle.Width(38).Height(20).Render(leftContent)
+	leftSide := sectionStyle.Width(38).Height(17).Render(leftContent)
 
 	// Middle -- Our main visualiser
-	middle := sectionStyle.Width(68).Height(20).Render("visualiser")
+	middle := sectionStyle.Width(68).Height(17).Render("visualiser")
 
 	// Top row
 	topRow := lipgloss.JoinHorizontal(lipgloss.Top, leftSide, middle)
 
 	// The git log section
-	logSection := sectionStyle.Width(lipgloss.Width(topRow)).Height(8).Render("Log")
+	var logLines []string
+	for _, c := range m.logs {
+		logLines = append(logLines, fmt.Sprintf("-> %s %s (%s)", c.Hash, c.Message, c.Author))
+	}
+	logContent := strings.Join(logLines, "\n\n")
+	logSection := sectionStyle.Width(lipgloss.Width(topRow)).Height(10).Render(logContent)
 
 	// footer like nvim yayay!!
 	footer := footerStyle.Render("q: quit")
@@ -113,6 +120,10 @@ func Main() {
 	branch, err := git.GetCurrentBranch()
 	if err == nil {
 		m.currentbranch = branch
+	}
+	logs, err := git.GetLog(5)
+	if err == nil {
+		m.logs = logs
 	}
 	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
