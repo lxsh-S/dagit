@@ -7,7 +7,7 @@ import (
 )
 
 func GetGraph(limit int) ([]string, error) {
-	format := "\x02%d"
+	format := "\x02%h\x1f%an\x1f%d\x1f%ar"
 	out, err := exec.Command("git", "log", "--all", "--graph", "--pretty=format:"+format, "-n", strconv.Itoa(limit)).Output()
 	if err != nil {
 		return nil, err

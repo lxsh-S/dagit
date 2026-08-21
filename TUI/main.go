@@ -28,9 +28,11 @@ var (
 )
 
 var (
-	graphStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
-	refStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("212")).Bold(true)
-	nodeStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("245"))
+	graphStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("78"))
+	hashStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("214"))
+	refStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("212")).Bold(true)
+	timeStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("245"))
+	authorStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("81"))
 )
 
 func renderGraphLine(line string) string {
@@ -38,15 +40,22 @@ func renderGraphLine(line string) string {
 	if len(parts) < 2 {
 		return graphStyle.Render(line) // Only the connectors
 	}
-	graphPrefix, refs := parts[0], strings.TrimSpace(parts[1])
 
-	out := graphStyle.Render(graphPrefix)
+	graphPrefix, data := parts[0], parts[1]
+
+	fields := strings.SplitN(data, "\x1f", 4)
+	if len(fields) < 4 {
+		return graphStyle.Render(graphPrefix)
+	}
+
+	hash, author, refs, when := fields[0], strings.TrimSpace(fields[1]), fields[2], fields[3]
+
+	out := graphStyle.Render(graphPrefix) + hashStyle.Render(hash) + " " + authorStyle.Render(author) + " "
 	if refs != "" {
 		refs = strings.Trim(refs, "()")
-		out += refStyle.Render(refs)
-	} else {
-		out += nodeStyle.Render("●")
+		out += refStyle.Render(refs) + " "
 	}
+	out += timeStyle.Render(when)
 	return out
 }
 
