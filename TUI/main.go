@@ -1,6 +1,6 @@
 package TUI
 
-// lipgloss test 1
+// lipgloss test 2 -- With no hardcoded sizes
 import (
 	"fmt"
 
@@ -73,12 +73,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() tea.View {
 	// left panel
-	leftContent := fmt.Sprintf("DAGIT\n\nRepo: %s\nOwner: %sRemote URL:\n %s\nCurrent Branch: %s", m.reponame, m.ownername, m.url, m.currentbranch)
+	leftContent := fmt.Sprintf("DAGIT\n\nRepo: %s\n\nOwner: %s\n\nRemote URL:\n %s\n\nCurrent Branch: %s", m.reponame, m.ownername, m.url, m.currentbranch)
 
-	leftSide := sectionStyle.Width(30).Height(10).Render(leftContent)
+	leftSide := sectionStyle.Width(38).Height(20).Render(leftContent)
 
 	// Middle -- Our main visualiser
-	middle := sectionStyle.Width(30).Height(10).Render("visualiser")
+	middle := sectionStyle.Width(68).Height(20).Render("visualiser")
 
 	// Top row
 	topRow := lipgloss.JoinHorizontal(lipgloss.Top, leftSide, middle)
