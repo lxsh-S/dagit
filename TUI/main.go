@@ -52,11 +52,21 @@ func renderGraphLine(line string) string {
 
 	out := graphStyle.Render(graphPrefix) + hashStyle.Render(hash) + " "
 	out += authorStyle.Render(author) + " "
+	out += timeStyle.Render(when)
+
 	if refs != "" {
 		refs = strings.Trim(refs, "()")
-		out += refStyle.Render(refs) + " "
+
+		// remove Noise
+		refs = strings.ReplaceAll(refs, "origin/HEAD", "")
+		refs = strings.ReplaceAll(refs, ", ,", ",")
+		refs = strings.Trim(refs, ", ")
+
+		if refs != "" {
+			out += " "
+			out += refStyle.Render(refs)
+		}
 	}
-	out += timeStyle.Render(when)
 	return out
 }
 
