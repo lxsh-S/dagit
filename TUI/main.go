@@ -50,7 +50,8 @@ func renderGraphLine(line string) string {
 
 	hash, author, refs, when := fields[0], strings.TrimSpace(fields[1]), fields[2], fields[3]
 
-	out := graphStyle.Render(graphPrefix) + hashStyle.Render(hash) + " " + authorStyle.Render(author) + " "
+	out := graphStyle.Render(graphPrefix) + hashStyle.Render(hash) + " "
+	out += authorStyle.Render(author) + " "
 	if refs != "" {
 		refs = strings.Trim(refs, "()")
 		out += refStyle.Render(refs) + " "
