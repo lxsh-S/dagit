@@ -3,6 +3,8 @@
 
 # dagit
 Visualize your GitHub repository in your terminal!
+<img width="2466" height="1433" alt="image" src="https://github.com/user-attachments/assets/6ea3048f-e2c7-4dd5-af35-ae1bd2f0499f" />
+
 
 # Design choices and goals
 dagit is a project made because of my interest in CLI tools although it's a TUI.
