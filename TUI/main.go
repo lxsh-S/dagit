@@ -114,6 +114,6 @@ func Main() {
 	}
 	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
-		fmt.Printf("Error running program: %v", err)
+		fmt.Printf("dagit refused to run: %v", err)
 	}
 }
