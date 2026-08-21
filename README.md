@@ -1,4 +1,4 @@
-<img width="1428" height="996" alt="screenshot-2026-08-21_17-54-14" src="https://github.com/user-attachments/assets/7df903ae-d33f-43b9-831c-a36c5191e3a6" />
+<img width="2455" height="1415" alt="image" src="https://github.com/user-attachments/assets/7e36791a-f05d-432c-bd23-9388686d7d72" />
 
 
 # dagit
