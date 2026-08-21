@@ -27,6 +27,36 @@ var (
 	footerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
 )
 
+var (
+	graphStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
+	refStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("212")).Bold(true)
+	nodeStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("245"))
+)
+
+func renderGraphLine(line string) string {
+	parts := strings.SplitN(line, "\x02", 2)
+	if len(parts) < 2 {
+		return graphStyle.Render(line) // Only the connectors
+	}
+	graphPrefix, refs := parts[0], strings.TrimSpace(parts[1])
+
+	out := graphStyle.Render(graphPrefix)
+	if refs != "" {
+		refs = strings.Trim(refs, "()")
+		out += refStyle.Render(refs)
+	} else {
+		out += nodeStyle.Render("●")
+	}
+	return out
+}
+
+func makeTheLinesStop(lines []string, max int) []string {
+	if len(lines) > max {
+		return lines[:max]
+	}
+	return lines
+}
+
 func (m model) Init() tea.Cmd {
 	return nil
 }
@@ -70,7 +100,17 @@ func (m model) View() tea.View {
 	leftSide := sectionStyle.Width(leftWidth).Height(topHeight).Render(leftContent)
 
 	// Middle -- Our main visualiser
-	middle := sectionStyle.Width(middleWidth).Height(topHeight).Render("visualiser")
+	graphLines, _ := git.GetGraph(15)        // We first get the graph lines
+	graphLines = git.SpreadGraph(graphLines) // Then we spread then (look better)
+	graphLines = makeTheLinesStop(graphLines, topHeight-2)
+
+	var rendered []string
+	for _, l := range graphLines {
+		rendered = append(rendered, renderGraphLine(l))
+	}
+
+	middleContent := strings.Join(rendered, "\n")
+	middle := sectionStyle.Width(middleWidth).Height(topHeight).Render(middleContent)
 
 	// Top row
 	topRow := lipgloss.JoinHorizontal(lipgloss.Top, leftSide, middle)
