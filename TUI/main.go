@@ -65,6 +65,9 @@ func (m model) Init() tea.Cmd {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
 	case tea.KeyPressMsg:
 		if msg.String() == "ctrl+c" || msg.String() == "q" {
 			return m, tea.Quit
@@ -74,13 +77,32 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() tea.View {
+	// Can we get resizing done :crying
+	if m.width == 0 {
+		v := tea.NewView("Loading...")
+		v.AltScreen = true
+		return v
+	}
+	// footer first
+	footer := footerStyle.Render("q: quit")
+	footerHeight := lipgloss.Height(footer)
+
+	// les reserve the height for footer
+	availabeHeight := m.height - footerHeight - 2 // -2 becuase -1 is too small (not always but for my hyprland config)
+	topHeight := availabeHeight * 2 / 3
+	logHeight := availabeHeight - topHeight
+
+	// les split the panel and visualizer
+	leftWidth := m.width * 36 / 100
+	middleWidth := m.width - leftWidth // i accounted for padding before but it makes it look small idk why
+
 	// left panel
 	leftContent := fmt.Sprintf("DAGIT\n\nRepo: %s\n\nOwner: %s\n\nRemote URL:\n %s\n\nCurrent Branch: %s", m.reponame, m.ownername, m.url, m.currentbranch)
 
-	leftSide := sectionStyle.Width(38).Height(17).Render(leftContent)
+	leftSide := sectionStyle.Width(leftWidth).Height(topHeight).Render(leftContent)
 
 	// Middle -- Our main visualiser
-	middle := sectionStyle.Width(68).Height(17).Render("visualiser")
+	middle := sectionStyle.Width(middleWidth).Height(topHeight).Render("visualiser")
 
 	// Top row
 	topRow := lipgloss.JoinHorizontal(lipgloss.Top, leftSide, middle)
@@ -91,10 +113,7 @@ func (m model) View() tea.View {
 		logLines = append(logLines, fmt.Sprintf("-> %s %s (%s)", c.Hash, c.Message, c.Author))
 	}
 	logContent := strings.Join(logLines, "\n\n")
-	logSection := sectionStyle.Width(lipgloss.Width(topRow)).Height(10).Render(logContent)
-
-	// footer like nvim yayay!!
-	footer := footerStyle.Render("q: quit")
+	logSection := sectionStyle.Width(lipgloss.Width(topRow)).Height(logHeight).Render(logContent)
 
 	fullThing := lipgloss.JoinVertical(lipgloss.Left, topRow, logSection, footer)
 	v := tea.NewView(fullThing)
