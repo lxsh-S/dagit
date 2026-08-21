@@ -89,6 +89,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyPressMsg:
 		if msg.String() == "ctrl+c" || msg.String() == "q" {
 			return m, tea.Quit
+		} else if msg.String() == "r" {
+			return m, tea.ClearScreen
 		}
 	}
 	return m, nil
