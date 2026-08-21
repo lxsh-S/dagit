@@ -27,38 +27,6 @@ var (
 	footerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
 )
 
-// WAIT! WHY not do it in main()
-//
-// func (m *model) assigndata() (string, string, string, string, error) {
-// 	var err error
-// 	// We get our repo Name
-// 	m.reponame, err = git.GetRepoName()
-// 	if err != nil {
-// 		return "", "", "", "", err
-// 	}
-//
-// 	// Owner Name
-// 	m.ownername, err = git.GetRepoOwner()
-// 	if err != nil {
-// 		return "", "", "", "", err
-// 	}
-//
-// 	// The ur;
-// 	m.url, err = git.GetRemoteURL()
-// 	if err != nil {
-// 		return "", "", "", "", err
-// 	}
-//
-// 	// Current Branch name
-// 	m.currentbranch, err = git.GetCurrentBranch()
-// 	if err != nil {
-// 		return "", "", "", "", nil
-// 	}
-//
-// 	// Now we return all the values
-// 	return m.reponame, m.ownername, m.url, m.currentbranch, err
-// }
-
 func (m model) Init() tea.Cmd {
 	return nil
 }
@@ -110,7 +78,7 @@ func (m model) View() tea.View {
 	// The git log section
 	var logLines []string
 	for _, c := range m.logs {
-		logLines = append(logLines, fmt.Sprintf("-> %s %s (%s)", c.Hash, c.Message, c.Author))
+		logLines = append(logLines, fmt.Sprintf("-> [%s] %s (%s)", c.Hash, c.Message, c.Author))
 	}
 	logContent := strings.Join(logLines, "\n\n")
 	logSection := sectionStyle.Width(lipgloss.Width(topRow)).Height(logHeight).Render(logContent)
