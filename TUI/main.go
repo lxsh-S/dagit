@@ -1,9 +1,11 @@
 package TUI
 
+// lipgloss test 1
 import (
 	"fmt"
 
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/lxsh-S/dagit/internal/git"
 )
 
@@ -12,7 +14,16 @@ type model struct {
 	ownername     string
 	url           string
 	currentbranch string
+	width, height int
 }
+
+var (
+	sectionStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			Padding(0, 1)
+
+	footerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
+)
 
 // WAIT! WHY not do it in main()
 //
@@ -61,10 +72,25 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() tea.View {
-	dagit := "DAGIT"
-	str := fmt.Sprintf("%s\n\nRepo: %s\nOwner: %sRemote URL:\n %s\nCurrent Branch: %s", dagit, m.reponame, m.ownername, m.url, m.currentbranch)
+	// left panel
+	leftContent := fmt.Sprintf("DAGIT\n\nRepo: %s\nOwner: %sRemote URL:\n %s\nCurrent Branch: %s", m.reponame, m.ownername, m.url, m.currentbranch)
 
-	v := tea.NewView(str)
+	leftSide := sectionStyle.Width(30).Height(10).Render(leftContent)
+
+	// Middle -- Our main visualiser
+	middle := sectionStyle.Width(30).Height(10).Render("visualiser")
+
+	// Top row
+	topRow := lipgloss.JoinHorizontal(lipgloss.Top, leftSide, middle)
+
+	// The git log section
+	logSection := sectionStyle.Width(lipgloss.Width(topRow)).Height(8).Render("Log")
+
+	// footer like nvim yayay!!
+	footer := footerStyle.Render("q: quit")
+
+	fullThing := lipgloss.JoinVertical(lipgloss.Left, topRow, logSection, footer)
+	v := tea.NewView(fullThing)
 	v.AltScreen = true
 
 	return v
