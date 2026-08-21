@@ -1,3 +1,4 @@
+<img width="2496" height="1476" alt="screenshot-2026-08-21_18-07-46" src="https://github.com/user-attachments/assets/fffc606e-42a5-46ea-9824-d2ba6dd83be8" />
 # dagit
 Visualize your GitHub repository in your terminal!
 
