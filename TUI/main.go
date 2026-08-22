@@ -136,12 +136,18 @@ func (m model) View() tea.View {
 	topHeight := availabeHeight * 2 / 3
 	logHeight := availabeHeight - topHeight
 
-	// les split the panel and visualizer
-	leftWidth := m.width * 36 / 100
-	middleWidth := m.width - leftWidth // i accounted for padding before but it makes it look small idk why
-
 	// left panel
-	leftContent := fmt.Sprintf("DAGIT\n\nRepo: %s\n\nOwner: %s\n\nRemote URL:\n %s\n\nCurrent Branch: %s", m.reponame, m.ownername, m.url, m.currentbranch)
+	// Attempt to fix right side border issue
+
+	horizontalFrame := sectionStyle.GetHorizontalFrameSize() - 2
+
+	leftOuterWidth := m.width * 36 / 100
+	middleOuterWidth := m.width - leftOuterWidth
+
+	leftWidth := leftOuterWidth - horizontalFrame
+	middleWidth := middleOuterWidth - horizontalFrame
+
+	leftContent := fmt.Sprintf("DAGIT\n------------------------------------\nRepo: %s\n\nOwner: %s\n\nRemote URL:\n %s\n\nCurrent Branch: %s", m.reponame, m.ownername, m.url, m.currentbranch)
 
 	leftSide := sectionStyle.Width(leftWidth).Height(topHeight).Render(leftContent)
 
