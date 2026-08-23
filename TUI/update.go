@@ -24,7 +24,7 @@ func (m *model) refreshData() {
 		m.reponame = reponame
 	}
 
-	if ownername, err := git.GetRemoteURL(); err == nil {
+	if ownername, err := git.GetRepoOwner(); err == nil {
 		m.url = ownername
 	}
 
@@ -42,6 +42,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+
+	case tickMsg:
+		m.refreshData()
+		return m, tickEveryWhen(3 * time.Second)
 
 	case tea.KeyPressMsg:
 		if msg.String() == "ctrl+c" || msg.String() == "q" {
