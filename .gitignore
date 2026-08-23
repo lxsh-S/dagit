@@ -12,7 +12,7 @@
 *.test
 
 # The binary folder
-dist/
+# dist/
 
 # Code coverage profiles and other test artifacts
 *.out
