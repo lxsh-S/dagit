@@ -20,11 +20,24 @@ type model struct {
 }
 
 var (
+	// Les make with something bluish and purple becuause my current wallaper is in something like that too
+	colorBorder = lipgloss.Color("61")
+	colorAccent = lipgloss.Color("212")
+	colorMuted  = lipgloss.Color("241")
+	colorSubtle = lipgloss.Color("245")
+
 	sectionStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
+			BorderForeground(colorBorder).
 			Padding(0, 1)
 
-	footerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
+	titleStyle = lipgloss.NewStyle().
+			Foreground(colorAccent).
+			Bold(true)
+
+	footerStyle = lipgloss.NewStyle().
+			Foreground(colorMuted).
+			Padding(0, 1)
 )
 
 var (
@@ -34,6 +47,10 @@ var (
 	timeStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("245"))
 	authorStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("81"))
 )
+
+func renderTitle(text string) string {
+	return titleStyle.Render(text) + "\n" + lipgloss.NewStyle().Foreground(colorBorder).Render(strings.Repeat("-", lipgloss.Width(text)))
+}
 
 func renderGraphLine(line string) string {
 	parts := strings.SplitN(line, "\x02", 2)
@@ -138,7 +155,7 @@ func (m model) View() tea.View {
 	// ---------
 
 	// footer first
-	footer := footerStyle.Render("q: quit | r: refresh")
+	footer := footerStyle.Render("q: quit • r: refresh")
 	footerHeight := lipgloss.Height(footer)
 
 	verticalFrame := sectionStyle.GetVerticalFrameSize()
@@ -167,40 +184,54 @@ func (m model) View() tea.View {
 	// left panel
 	// Attempt to fix right side border issue
 
-	horizontalFrame := sectionStyle.GetHorizontalFrameSize() - 2
+	// horizontalFrame := sectionStyle.GetHorizontalFrameSize()
 
 	leftOuterWidth := m.width * 36 / 100
 	middleOuterWidth := m.width - leftOuterWidth
 
-	leftWidth := leftOuterWidth - horizontalFrame
-	middleWidth := middleOuterWidth - horizontalFrame
+	leftWidth := leftOuterWidth
+	middleWidth := middleOuterWidth
 
-	leftContent := fmt.Sprintf("DAGIT\n------------------------------------\nRepo: %s\n\nOwner: %s\n\nRemote URL:\n %s\n\nCurrent Branch: %s", m.reponame, m.ownername, m.url, m.currentbranch)
+	leftContent := renderTitle("DAGIT") + fmt.Sprintf(
+		"\nRepo:    %s\nOwner:   %s\nBranch:  %s\n\nURL:     %s", m.reponame, m.ownername, m.currentbranch, m.url)
 
 	leftSide := sectionStyle.Width(leftWidth).Height(topHeight).Render(leftContent)
 
 	// Middle -- Our main visualiser
-	graphLines, _ := git.GetGraph(15)        // We first get the graph lines
-	graphLines = git.SpreadGraph(graphLines) // Then we spread then (look better)
-	graphLines = makeTheLinesStop(graphLines, topHeight-2)
+	graphLines, _ := git.GetGraph(15)                        // We first get the graph lines
+	graphLines = git.SpreadGraph(graphLines)                 // Then we spread then (look better)
+	graphLines = makeTheLinesStop(graphLines, topHeight-2-2) // Added one more -2 accounting the heading fixed? -> yes
 
 	var rendered []string
 	for _, l := range graphLines {
 		rendered = append(rendered, renderGraphLine(l))
 	}
 
-	middleContent := strings.Join(rendered, "\n")
+	middleContent := renderTitle("VISUALIZER") + "\n" + strings.Join(rendered, "\n")
 	middle := sectionStyle.Width(middleWidth).Height(topHeight).Render(middleContent)
 
 	// Top row
 	topRow := lipgloss.JoinHorizontal(lipgloss.Top, leftSide, middle)
 
 	// The git log section
+
+	maxLogLines := (logHeight - 3)
+	if maxLogLines < 1 {
+		maxLogLines = 1
+	}
+
+	logs := m.logs
+
+	if len(logs) > maxLogLines {
+		logs = logs[:maxLogLines]
+	}
+
 	var logLines []string
-	for _, c := range m.logs {
+
+	for _, c := range logs {
 		logLines = append(logLines, fmt.Sprintf("-> [%s] %s (%s)", c.Hash, c.Message, c.Author))
 	}
-	logContent := strings.Join(logLines, "\n\n")
+	logContent := renderTitle("LOG") + "\n" + strings.Join(logLines, "\n\n")
 	logSection := sectionStyle.Width(lipgloss.Width(topRow)).Height(logHeight).Render(logContent)
 
 	fullThing := lipgloss.JoinVertical(lipgloss.Left, topRow, logSection, footer)
