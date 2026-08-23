@@ -127,14 +127,37 @@ func (m model) View() tea.View {
 		v.AltScreen = true
 		return v
 	}
+
+	// ---------
+	// ||	HEIGHT|
+	// ---------
+
 	// footer first
 	footer := footerStyle.Render("q: quit | r: refresh")
 	footerHeight := lipgloss.Height(footer)
 
-	// les reserve the height for footer
-	availabeHeight := m.height - footerHeight - 2 // -2 becuase -1 is too small (not always but for my hyprland config)
-	topHeight := availabeHeight * 2 / 3
-	logHeight := availabeHeight - topHeight
+	verticalFrame := sectionStyle.GetVerticalFrameSize()
+
+	// Now reserve space for footer
+	availabeHeight := m.height - footerHeight - 1 // switched to 1 from 2
+
+	topOuterHeight := availabeHeight * 2 / 3
+	lopOuterHeight := availabeHeight - topOuterHeight
+
+	topHeight := topOuterHeight - verticalFrame
+	logHeight := lopOuterHeight - verticalFrame
+
+	// for a lil safety
+	if topHeight < 1 {
+		topHeight = 1
+	}
+	if logHeight < 1 {
+		logHeight = 1
+	}
+	//
+	// ---------
+	// ||	WIDTH|
+	// ---------
 
 	// left panel
 	// Attempt to fix right side border issue
