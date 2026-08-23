@@ -40,6 +40,22 @@ var (
 			Padding(0, 1)
 )
 
+// For left panel
+var (
+	labelStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
+	valueStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("225"))
+	urlStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("1"))
+)
+
+// For log
+var (
+	logHashStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("214"))
+	logAuthorStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("81"))
+	logArrowStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
+	logMessageStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("225"))
+)
+
+// For visualiser
 var (
 	graphStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("78"))
 	hashStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("214"))
@@ -47,6 +63,24 @@ var (
 	timeStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("245"))
 	authorStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("81"))
 )
+
+func renderLeftPanel(m model) string {
+	return renderTitle("DAGIT") + fmt.Sprintf(
+		"\n%s %s\n%s %s\n%s %s\n\n%s\n%s",
+		labelStyle.Render("Repo:  "), valueStyle.Render(m.reponame),
+		labelStyle.Render("Owner: "), valueStyle.Render(m.ownername),
+		labelStyle.Render("Branch:"), valueStyle.Render(m.currentbranch),
+		labelStyle.Render("URL:  "), urlStyle.Render(m.url),
+	)
+}
+
+func renderLogLines(c git.Commit) string {
+	arrow := logArrowStyle.Render("->")
+	hash := logHashStyle.Render("[" + c.Hash + "]")
+	message := logMessageStyle.Render(c.Message)
+	author := logAuthorStyle.Render("[" + c.Author + "]")
+	return fmt.Sprintf("%s %s %s %s", arrow, hash, message, author)
+}
 
 func renderTitle(text string) string {
 	return titleStyle.Render(text) + "\n" + lipgloss.NewStyle().Foreground(colorBorder).Render(strings.Repeat("-", lipgloss.Width(text)))
@@ -192,8 +226,10 @@ func (m model) View() tea.View {
 	leftWidth := leftOuterWidth
 	middleWidth := middleOuterWidth
 
-	leftContent := renderTitle("DAGIT") + fmt.Sprintf(
-		"\nRepo:    %s\nOwner:   %s\nBranch:  %s\n\nURL:     %s", m.reponame, m.ownername, m.currentbranch, m.url)
+	// leftContent := renderTitle("DAGIT") + fmt.Sprintf(
+	// 	"\nRepo:    %s\nOwner:   %s\nBranch:  %s\n\nURL:     %s", m.reponame, m.ownername, m.currentbranch, m.url)
+
+	leftContent := renderLeftPanel(m)
 
 	leftSide := sectionStyle.Width(leftWidth).Height(topHeight).Render(leftContent)
 
@@ -229,7 +265,7 @@ func (m model) View() tea.View {
 	var logLines []string
 
 	for _, c := range logs {
-		logLines = append(logLines, fmt.Sprintf("-> [%s] %s (%s)", c.Hash, c.Message, c.Author))
+		logLines = append(logLines, renderLogLines(c))
 	}
 	logContent := renderTitle("LOG") + "\n" + strings.Join(logLines, "\n\n")
 	logSection := sectionStyle.Width(lipgloss.Width(topRow)).Height(logHeight).Render(logContent)
@@ -263,6 +299,7 @@ func Main() {
 	if err == nil {
 		m.logs = logs
 	}
+
 	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("dagit refused to run: %v", err)
