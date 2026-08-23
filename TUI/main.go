@@ -62,6 +62,11 @@ func renderGraphLine(line string) string {
 		refs = strings.ReplaceAll(refs, ", ,", ",")
 		refs = strings.Trim(refs, ", ")
 
+		// Stop 'refs' being too long
+		if lipgloss.Width(refs) > 30 {
+			refs = refs[:27] + "..."
+		}
+
 		if refs != "" {
 			out += " "
 			out += refStyle.Render(refs)
