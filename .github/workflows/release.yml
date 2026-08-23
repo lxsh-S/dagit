@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+
+      - name: Update AUR package
+        run: |
+          set -euo pipefail
+
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          echo "Releasing AUR version: $VERSION"
+
+          mkdir -p ~/.ssh
+          ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
+
+          # Clone the AUR repo
+          git clone ssh://aur@aur.archlinux.org/dagit-bin.git aur-repo
+          cd aur-repo
+
+          # Bump pkgver and reset pkgrel
+          sed -i "s/^pkgver=.*/pkgver=${VERSION}/" PKGBUILD
+          sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
+
+          # Update .SRCINFO (makepkg isn't available on Ubuntu, so sed it)
+          sed -i "s/^\tpkgver = .*/\tpkgver = ${VERSION}/" .SRCINFO
+          sed -i "s/^\tpkgrel = .*/\tpkgrel = 1/" .SRCINFO
+
+          git config user.name "github-actions"
+          git config user.email "${{ secrets.AUR_EMAIL }}"
+          git add PKGBUILD .SRCINFO
+          git commit -m "v${VERSION}: bump to ${VERSION}" || echo "No changes to commit"
+          git push

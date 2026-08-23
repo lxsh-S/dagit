@@ -1,0 +1,24 @@
+version: 2
+
+builds:
+  - id: linux
+    goos: [linux]
+    goarch: [amd64]
+    binary: dagit-linux-amd64
+
+  - id: darwin
+    goos: [darwin]
+    goarch: [arm64]
+    binary: dagit-darwin-arm64
+
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .Binary }}"
+    files:
+      - none*
+
+release:
+  github:
+    owner: lxsh-S
+checksum:
+  disable: true
