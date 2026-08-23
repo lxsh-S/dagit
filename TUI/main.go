@@ -74,11 +74,34 @@ func renderLeftPanel(m model) string {
 	)
 }
 
-func renderLogLines(c git.Commit) string {
+func truncateMessages(msg string, maxWidth int) string {
+	if lipgloss.Width(msg) <= maxWidth {
+		return msg
+	}
+	runes := []rune(msg)
+	if maxWidth <= 3 {
+		return string(runes[:maxWidth])
+	}
+	cut := maxWidth - 3
+	if cut > len(runes) {
+		cut = len(runes)
+	}
+
+	return string(runes[:cut]) + "..."
+}
+
+func renderLogLines(c git.Commit, availableWidth int) string {
 	arrow := logArrowStyle.Render("->")
 	hash := logHashStyle.Render("[" + c.Hash + "]")
-	message := logMessageStyle.Render(c.Message)
 	author := logAuthorStyle.Render("[" + c.Author + "]")
+
+	fixedWidth := lipgloss.Width("-> ["+c.Hash+"] ["+c.Author+"]") + 2
+	msgWidth := availableWidth - fixedWidth
+	if msgWidth < 10 {
+		msgWidth = 10
+	}
+
+	message := logMessageStyle.Render(truncateMessages(c.Message, msgWidth))
 	return fmt.Sprintf("%s %s %s %s", arrow, hash, message, author)
 }
 
@@ -195,7 +218,8 @@ func (m model) View() tea.View {
 	verticalFrame := sectionStyle.GetVerticalFrameSize()
 
 	// Now reserve space for footer
-	availabeHeight := m.height - footerHeight - 1 // switched to 1 from 2
+	availabeHeight := m.height - footerHeight
+	// availabeHeight := m.height - footerHeight - 1 // Before  [switched to 1 form 2]
 
 	topOuterHeight := availabeHeight * 2 / 3
 	lopOuterHeight := availabeHeight - topOuterHeight
@@ -256,6 +280,8 @@ func (m model) View() tea.View {
 		maxLogLines = 1
 	}
 
+	logWidth := lipgloss.Width(topRow) - sectionStyle.GetVerticalFrameSize() - 3
+
 	logs := m.logs
 
 	if len(logs) > maxLogLines {
@@ -265,7 +291,7 @@ func (m model) View() tea.View {
 	var logLines []string
 
 	for _, c := range logs {
-		logLines = append(logLines, renderLogLines(c))
+		logLines = append(logLines, renderLogLines(c, logWidth))
 	}
 	logContent := renderTitle("LOG") + "\n" + strings.Join(logLines, "\n\n")
 	logSection := sectionStyle.Width(lipgloss.Width(topRow)).Height(logHeight).Render(logContent)
