@@ -3,6 +3,7 @@ package TUI
 // lipgloss test 2 -- With no hardcoded sizes
 import (
 	"fmt"
+	"time"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/lxsh-S/dagit/internal/git"
@@ -18,7 +19,7 @@ type model struct {
 }
 
 func (m model) Init() tea.Cmd {
-	return nil
+	return tickEveryWhen(3 * time.Second)
 }
 
 func Main() {
