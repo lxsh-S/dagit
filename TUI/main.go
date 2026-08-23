@@ -62,6 +62,10 @@ var (
 	refStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("212")).Bold(true)
 	timeStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("245"))
 	authorStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("81"))
+
+	headHashStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("13")).Bold(true)
+	headRefStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("46")).Bold(true)
+	headNodeChar  = "●"
 )
 
 func renderLeftPanel(m model) string {
@@ -116,7 +120,6 @@ func renderGraphLine(line string) string {
 	}
 
 	graphPrefix, data := parts[0], parts[1]
-
 	fields := strings.SplitN(data, "\x1f", 4)
 	if len(fields) < 4 {
 		return graphStyle.Render(graphPrefix)
@@ -124,9 +127,26 @@ func renderGraphLine(line string) string {
 
 	hash, author, refs, when := fields[0], strings.TrimSpace(fields[1]), fields[2], fields[3]
 
-	out := graphStyle.Render(graphPrefix) + hashStyle.Render(hash) + " "
+	isHead := strings.Contains(refs, "HEAD")
+
+	renderedGraph := graphStyle.Render(graphPrefix)
+	if isHead {
+		renderedGraph = strings.Replace(graphPrefix, "*", headNodeChar, 1)
+		renderedGraph = lipgloss.NewStyle().Foreground(lipgloss.Color("46")).Render(renderedGraph)
+	}
+
+	var out string
+	if isHead {
+		out = renderedGraph + headHashStyle.Render(hash) + " "
+	} else {
+		out = renderedGraph + hashStyle.Render(hash) + " "
+	}
 	out += authorStyle.Render(author) + " "
 	out += timeStyle.Render(when)
+
+	// out := graphStyle.Render(graphPrefix) + hashStyle.Render(hash) + " "
+	// out += authorStyle.Render(author) + " "
+	// out += timeStyle.Render(when)
 
 	if refs != "" {
 		refs = strings.Trim(refs, "()")
@@ -143,7 +163,11 @@ func renderGraphLine(line string) string {
 
 		if refs != "" {
 			out += " "
-			out += refStyle.Render(refs)
+			if isHead {
+				out += refStyle.Render(refs)
+			} else {
+				out += refStyle.Render(refs)
+			}
 		}
 	}
 	return out
@@ -249,9 +273,6 @@ func (m model) View() tea.View {
 
 	leftWidth := leftOuterWidth
 	middleWidth := middleOuterWidth
-
-	// leftContent := renderTitle("DAGIT") + fmt.Sprintf(
-	// 	"\nRepo:    %s\nOwner:   %s\nBranch:  %s\n\nURL:     %s", m.reponame, m.ownername, m.currentbranch, m.url)
 
 	leftContent := renderLeftPanel(m)
 

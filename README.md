@@ -9,8 +9,6 @@ Visualize your GitHub repository in your terminal!
 
 dagit is a project made because of my interest in CLI tools although it's a TUI.
 
-# Contribute
-
 ```
 git clone https://github.com/lxsh-S/dagit.git
 cd dagit
