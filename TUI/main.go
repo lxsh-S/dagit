@@ -1,6 +1,5 @@
 package TUI
 
-// lipgloss test 2 -- With no hardcoded sizes
 import (
 	"fmt"
 	"strings"
