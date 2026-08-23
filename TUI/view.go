@@ -134,7 +134,7 @@ func (m model) View() tea.View {
 	// ---------
 
 	// footer first
-	footer := footerStyle.Render("q: quit • r: refresh")
+	footer := footerStyle.Render("q: quit •")
 	footerHeight := lipgloss.Height(footer)
 
 	verticalFrame := sectionStyle.GetVerticalFrameSize()
