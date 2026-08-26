@@ -2,10 +2,8 @@
 
 # dagit
 
-Visualize your GitHub repository in your terminal!
+Visualize your Git repository in your terminal!
 <img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/2db57794-7c6f-414a-9393-6e255e5f213a" />
-
-
 
 # Design choices and goals
 
