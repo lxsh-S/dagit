@@ -14,11 +14,10 @@ dagit was made because of my interest in CLI tools, although it's a TUI :P.
 
 - All the data displayed by `dagit` is fetched using git commands on your repository!
 - Currently dagit has 4 sections/panels:
-
-- Left panel(Yes i call it this in the code too T_T)
-- Visualizer
-- Log
-- Status
+  - Left panel(Yes i call it this in the code too T_T)
+  - Visualizer
+  - Log
+  - Status
 
 - After fetching the data, we use charm's lipgloss and bubbletea libraries to make this awesome TUI look more beautiful
 
