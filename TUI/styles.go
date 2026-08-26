@@ -50,3 +50,10 @@ var (
 	headRefStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("46")).Bold(true)
 	headNodeChar  = "●"
 )
+
+// For statusPanel
+var (
+	statusStagedStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("10"))
+	statusModifiedStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("3"))
+	statusUntrackedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("245"))
+)

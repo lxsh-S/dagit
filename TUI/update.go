@@ -35,6 +35,10 @@ func (m *model) refreshData() {
 	if branch, err := git.GetCurrentBranch(); err == nil {
 		m.currentbranch = branch
 	}
+
+	if status, err := git.GetStatus(); err == nil {
+		m.status = status
+	}
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -50,6 +54,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyPressMsg:
 		if msg.String() == "ctrl+c" || msg.String() == "q" {
 			return m, tea.Quit
+		} else if msg.String() == "v" {
+			m.showStatus = !m.showStatus
 		}
 	}
 	return m, nil

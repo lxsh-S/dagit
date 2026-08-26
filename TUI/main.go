@@ -15,6 +15,8 @@ type model struct {
 	url           string
 	currentbranch string
 	logs          []git.Commit
+	status        []git.FileStatus
+	showStatus    bool // false -> we show visualzier and file status if true
 	width, height int
 }
 

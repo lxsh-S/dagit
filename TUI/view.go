@@ -9,6 +9,34 @@ import (
 	"github.com/lxsh-S/dagit/internal/git"
 )
 
+func renderStatusLines(statuses []git.FileStatus) string {
+	if len(statuses) == 0 {
+		return statusModifiedStyle.Render("working tree clean")
+	}
+
+	var lines []string
+
+	for _, fs := range statuses {
+		var style lipgloss.Style
+		var marker string
+		switch {
+		case fs.Staged:
+			style = statusStagedStyle
+			marker = "●"
+		case fs.State == "untracked":
+			style = statusUntrackedStyle
+			marker = "?"
+
+		default:
+			style = statusModifiedStyle
+			marker = "○"
+		}
+		lines = append(lines, style.Render(marker+" "+fs.Path))
+	}
+
+	return strings.Join(lines, "\n")
+}
+
 func renderLeftPanel(m model) string {
 	return renderTitle("DAGIT") + fmt.Sprintf(
 		"\n%s %s\n%s %s\n%s %s\n\n%s\n%s",
@@ -134,7 +162,7 @@ func (m model) View() tea.View {
 	// ---------
 
 	// footer first
-	footer := footerStyle.Render("q: quit •")
+	footer := footerStyle.Render("q: quit • v: toggle visualiser/status")
 	footerHeight := lipgloss.Height(footer)
 
 	verticalFrame := sectionStyle.GetVerticalFrameSize()
@@ -177,16 +205,24 @@ func (m model) View() tea.View {
 	leftSide := sectionStyle.Width(leftWidth).Height(topHeight).Render(leftContent)
 
 	// Middle -- Our main visualiser
-	graphLines, _ := git.GetGraph(15)                        // We first get the graph lines
-	graphLines = git.SpreadGraph(graphLines)                 // Then we spread then (look better)
-	graphLines = makeTheLinesStop(graphLines, topHeight-2-2) // Added one more -2 accounting the heading fixed? -> yes
+	// We'll check status if we should show visualiser or not!
+	var middleContent string
 
-	var rendered []string
-	for _, l := range graphLines {
-		rendered = append(rendered, renderGraphLine(l))
+	if m.showStatus {
+		middleContent = renderTitle("STATUS") + "\n" + renderStatusLines(m.status)
+	} else {
+
+		graphLines, _ := git.GetGraph(15)                        // We first get the graph lines
+		graphLines = git.SpreadGraph(graphLines)                 // Then we spread then (look better)
+		graphLines = makeTheLinesStop(graphLines, topHeight-2-2) // Added one more -2 accounting the heading fixed? -> yes
+
+		var rendered []string
+		for _, l := range graphLines {
+			rendered = append(rendered, renderGraphLine(l))
+		}
+
+		middleContent = renderTitle("VISUALIZER") + "\n" + strings.Join(rendered, "\n")
 	}
-
-	middleContent := renderTitle("VISUALIZER") + "\n" + strings.Join(rendered, "\n")
 	middle := sectionStyle.Width(middleWidth).Height(topHeight).Render(middleContent)
 
 	// Top row
