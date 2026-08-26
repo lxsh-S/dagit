@@ -30,6 +30,8 @@ dagit was made because of my interest in CLI tools, although it's a TUI :P.
   - 5 seconds
   - 10 seconds
 
+An overview about the panel/sections:-
+
 ### Left panel
 
 We fetch and display the following data here:-
