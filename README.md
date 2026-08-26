@@ -3,6 +3,8 @@
 # dagit
 Visualize your Git repository in your terminal!
 
+`NOTE:- Make sure to have aleast 100x 35 cells on the terminal so that dagit renders properly`(You can increase it to as big as you want but I prefer not smaller than the min.(100 x 5)
+
 # Design choices and goals
 
 dagit was made because of my interest in CLI tools, although it's a TUI :P.
