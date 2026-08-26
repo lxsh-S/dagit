@@ -18,14 +18,15 @@ type model struct {
 	status        []git.FileStatus
 	showStatus    bool // false -> we show visualzier and file status if true
 	width, height int
+	tickRate      time.Duration
 }
 
 func (m model) Init() tea.Cmd {
-	return tickEveryWhen(3 * time.Second)
+	return tickEveryWhen(m.tickRate)
 }
 
 func Main() {
-	m := model{}
+	m := model{tickRate: 1 * time.Second} // Default tickRate
 	reponame, err := git.GetRepoName()
 	if err == nil {
 		m.reponame = reponame

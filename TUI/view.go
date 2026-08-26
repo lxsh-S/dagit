@@ -162,7 +162,7 @@ func (m model) View() tea.View {
 	// ---------
 
 	// footer first
-	footer := footerStyle.Render("q: quit • v: toggle visualiser/status")
+	footer := footerStyle.Render(fmt.Sprintf("q: quit • v: toggle visualiser/status • +/-: tick rate [%s]", m.tickRate))
 	footerHeight := lipgloss.Height(footer)
 
 	verticalFrame := sectionStyle.GetVerticalFrameSize()
