@@ -3,7 +3,9 @@
 # dagit
 
 Visualize your GitHub repository in your terminal!
-<img width="2500" height="1496" alt="screenshot-2026-08-23_17-02-37" src="https://github.com/user-attachments/assets/94fe5ef1-e76f-43e5-8860-d8fb8fabdc51" />
+<img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/2db57794-7c6f-414a-9393-6e255e5f213a" />
+
+
 
 # Design choices and goals
 
