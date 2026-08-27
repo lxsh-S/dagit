@@ -13,6 +13,6 @@ func main() {
 		TUI.Main()
 	} else {
 		// If its not a git repo then we dont open our TUI
-		fmt.Println("err: this isn't a git repo")
+		fmt.Println("err: this isn't a git repo, u makin me sad :(")
 	}
 }
